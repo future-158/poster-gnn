@@ -1,0 +1,7 @@
+data_path: data/poster_sst.parquet
+dataset_path: dataset/poster_sst_imputed.csv
+# imputed_path: dataset/poster_sst_imputed.csv
+# imputed_path: dataset/poster_sst_imputed.csv
+fig_dir: output/figure
+
+
