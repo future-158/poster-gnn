@@ -1,0 +1,72 @@
+# @package _global_
+# RAY_OBJECT_STORE_ALLOW_SLOW_STORAGE: true
+# AWS_ACCESS_KEY_ID: minio
+# AWS_SECRET_ACCESS_KEY: minio123
+# MLFLOW_S3_ENDPOINT_URL: http://localhost:23000
+
+log_dir: data/log/pyg
+
+mlflow: 
+  runname: "pyg_run3"
+  experiment_name: "pyg_experiment"
+  tracking_port: 23002
+
+model: # define default value
+  # lag_hour: 14
+  hidden_size: 32  # default 32
+  out_channels: 32  # default 32
+
+optimizer:
+  lr: 0.01
+
+hydra:
+  run:
+    dir: ${log_dir}/outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  sweep:
+    dir: ${log_dir}/multirun/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    subdir: ${hydra.job.override_dirname}
+
+  sweeper:
+    direction: minimize
+    study_name: pyg
+    storage: null
+    n_trials: 50
+    n_jobs: 1
+    sampler:
+      seed: 123
+
+    search_space:
+      # prep.lag_hour:
+      #   type: int
+      #   low: 4
+      #   high: 24
+      #   step: 1
+      model.hidden_size:
+        type: int
+        low: 16
+        high: 64
+        step: 4
+      model.out_channels:
+        type: int
+        low: 16
+        high: 64
+        step: 4
+      optimizer.lr:
+        type: float
+        low: 0.0001
+        high: 0.1
+        log: true
+
+      params.lag_step:
+        type: int
+        low: 10 # 2 * 5
+        high: 62 # 2 * 31
+        step: 2
+
+  launcher:
+    # override the number of jobs for joblib
+    n_jobs: 1
+
+  # job:
+  #   env_set:
+  #     RANK: ${hydra:job.num}

@@ -1,0 +1,46 @@
+defaults:
+  - _self_
+  - model: pyg
+  - override hydra/sweeper: optuna
+  - override hydra/sweeper/sampler: tpe
+  # - override hydra/launcher: ray
+  - override hydra/launcher: joblib
+
+catalogue:
+  raw: data/raw/sst.csv
+  clean: data/clean/sst.csv
+  impute: data/impute/sst.csv
+  model_in: data/model_in/sst.csv
+  meta: data/meta/A.csv
+  scratch: data/scratch/df.mmap
+  scaler: data/scaler/scaler.pkl
+
+prepare:
+  dt_start: ${params.dt_start}
+  dt_end: ${params.dt_end}
+
+params:
+  dt_start: '2018'
+  dt_end: '2021'
+  n_neighbors: 3
+  resampler: 12
+  lag_step: 14
+  pred_step: 2  
+  num_epochs: 5
+
+default:
+  imputation: knn
+
+
+
+  
+
+  
+
+  
+
+
+
+
+
+

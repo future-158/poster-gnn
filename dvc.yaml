@@ -1,0 +1,58 @@
+stages:
+  prepare:
+    cmd: conda run --prefix envs/prepare/ python prepare/load_impute.py
+    deps:
+    - conf/config.yml
+    - data/clean/sst.csv
+    - prepare/load_impute.py
+    outs:
+    - data/impute/sst.csv
+
+  imputate:
+    cmd: conda run --prefix src/imputation/knn/venv python src/imputation/knn/main.py
+    deps:
+    - conf/config.yml
+    - data/clean/sst.csv
+    - src/imputation/knn/main.py
+    outs:
+    - data/model_in/sst.csv
+
+  pyg:
+    #cmd: conda run --prefix src/predict/pyg/venv python src/predict/pyg/src/main.py
+    cmd: echo 'pass'
+    deps:
+    - src/predict/pyg/conf/parent.yml
+    - src/predict/pyg/conf/local.yml
+    - data/model_in/sst.csv
+    - src/predict/pyg/src/main.py
+    outs:
+    - data/model_out/sst.csv
+    - data/model/model.pt
+
+  stemgnn:
+    # cmd: python src/main.py -m
+    cmd: python src/main.py
+    deps:
+    - data/interim/prep.csv
+    - src/main.py
+    - config.yaml
+    outs:
+    # - outputs/2022-04-14  how to change randomly initialized subfolder
+      # - /workspace/multirun/2022-04-15
+      - /workspace/outputs
+      - /workspace/multirun
+    metrics:
+      - reports/summary.json:
+          cache: false      
+
+    params:    
+      - config.yaml:
+          # - batch_size  
+        - prep.resample
+        - args.window_size
+        - args.horizon
+        - args.multi_layer
+        - args.batch_size
+        - args.decay_rate
+        - args.dropout_rate
+        - args.leakyrelu_rate          

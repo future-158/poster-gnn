@@ -1,0 +1,15 @@
+artifact_uri: ./mlruns/3/22cbf05867aa41b58c7ff332007ebed0/artifacts
+end_time: 1651537676394
+entry_point_name: ''
+experiment_id: '3'
+lifecycle_stage: active
+name: ''
+run_id: 22cbf05867aa41b58c7ff332007ebed0
+run_uuid: 22cbf05867aa41b58c7ff332007ebed0
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1651537632193
+status: 3
+tags: []
+user_id: jhj

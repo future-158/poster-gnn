@@ -1,0 +1,16 @@
+-f https://pytorch-geometric.com/whl/torch-1.10.0+cu113.html
+torch-scatter 
+torch-sparse
+torch-geometric
+torch-geometric-temporal
+matplotlib
+seaborn
+pandas
+hydra-core
+hydra-optuna-sweeper
+hydra-joblib-launcher
+hydra_colorlog
+mlflow
+dvc
+pygod
+

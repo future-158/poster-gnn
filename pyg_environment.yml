@@ -1,0 +1,15 @@
+name: base
+channels:
+  - pytorch
+  - conda-forge
+  - defaults
+dependencies:
+  - pytorch==1.10.0
+  - torchvision==0.11.0
+  - torchaudio==0.10.0
+  - cudatoolkit=11.3
+  - ipykernel
+  - pip
+  - pip:
+    - --requirement pyg_requirements.txt
+
