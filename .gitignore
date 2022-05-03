@@ -3,6 +3,12 @@ venv
 _tsvd
 
 data/log
+data/impute
+data/log
+data/model_in
+data/scaler
+data/scratch
+mlruns
 .vscode
 _*
 
