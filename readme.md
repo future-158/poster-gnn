@@ -35,7 +35,7 @@ code에서 작업할 때 python interpreter로 ./venv/bin/python을 설정하면
 
 - conda activate && conda activate venv/
 
-- mlflow --host 0.0.0.0 --port 23002 &
+- mlflow server --host 0.0.0.0 --port 23002 &
 mlflow 서버 background에서 실행. 서버이름:23002로 접속하면 확인 가능
 
 - CUDA_VISIBLE_DEVICES='GPUID' python src/pyg/main.py
