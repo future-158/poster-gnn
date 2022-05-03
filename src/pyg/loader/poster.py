@@ -22,6 +22,7 @@ class PosterSSTDataLoader(object):
         self.source = Path(cfg.wd) / cfg.catalogue.model_in
         self.meta_path = Path(cfg.wd) / cfg.catalogue.meta
         self.scaler = Path(cfg.wd) / cfg.catalogue.scaler
+        self.scaler.parent.mkdir(parents=True, exist_ok=True)
         self.meta =  Path(cfg.wd) / cfg.catalogue.meta
         self._read_web_data()
 
