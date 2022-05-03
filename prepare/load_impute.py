@@ -21,6 +21,7 @@ cfg = OmegaConf.load(wd / "conf" / "config.yml")
 source = wd / cfg.catalogue.clean
 # target = wd / cfg.catalogue.impute
 target = wd / cfg.catalogue.model_in
+target.parent.mkdir(parents=True, exist_ok=True)
 
 
 dt_start = cfg.params.dt_start
@@ -64,6 +65,8 @@ df[outlier_mask] = np.nan
 
 # imputation using kalman filter
 mmap_path = Path(cfg.catalogue.scratch)
+mmap_path.parent.mkdir(parents=True, exist_ok=True)
+
 if mmap_path.exists():
     mmap_path.unlink()
 

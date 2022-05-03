@@ -9,7 +9,7 @@ PREFIX_PYG := envs/pyg
 
 install-prepare:
 	conda create --prefix $(PREFIX_PREPARE) python=3.8 pip ipykernel pandera -yq && \
-	conda run --prefix $(PREFIX_PREPARE) python -m pip install -r requirements.txt && \
+	conda run --prefix $(PREFIX_PREPARE) python -m pip install -r requirements.txt
 
 install-pygod:
 	conda run --prefix $(PREFIX_PREPARE) python -m pip install -r pygod_requirements.txt && \

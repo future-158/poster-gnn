@@ -20,6 +20,8 @@ prepare anaconda 환경을 envs/prepare에 설치
 venv -> envs/prepare로 심볼릭 링크 생성
 code에서 작업할 때 python interpreter로 ./venv/bin/python을 설정하면 됨
 
+- conda activate venv/
+
 - python prepare/load_impute.py
 data/clean/sst.csv를 읽어서 knn imputation, lof outlier removal, kalman smoothing을 수행함
 
@@ -30,6 +32,8 @@ prepare anaconda 환경을 envs/pyg에 설치
 - make activate-pyg
 venv -> envs/pyg로 심볼릭 링크 생성
 code에서 작업할 때 python interpreter로 ./venv/bin/python을 설정하면 됨
+
+- conda activate && conda activate venv/
 
 - mlflow --host 0.0.0.0 --port 23002
 mlflow 서버 실행. 서버이름:23002로 접속하면 확인 가능
