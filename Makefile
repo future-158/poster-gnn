@@ -21,10 +21,10 @@ install-pygod:
 	# rm -rf repo
 
 install-pyg:
-	mamba env create --prefix $(PREFIX_PYG) --file pyg_environment.yml
+	conda env create --prefix $(PREFIX_PYG) --file pyg_environment.yml
 
 install-stemgnn:
-	mamba create --prefix $(PREFIX_STEMGNN) python=3.8 pip ipykernel -yq && \
+	conda create --prefix $(PREFIX_STEMGNN) python=3.8 pip ipykernel -yq && \
 	conda run --prefix $(PREFIX_STEMGNN) python -m pip install -r stemgnn_requirements.txt
 
 activate-prepare:
