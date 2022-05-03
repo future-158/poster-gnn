@@ -28,13 +28,13 @@ install-stemgnn:
 	conda run --prefix $(PREFIX_STEMGNN) python -m pip install -r stemgnn_requirements.txt
 
 activate-prepare:
-	[ -f venv ] && rm venv; ln -s $(PREFIX_PREPARE) venv
+	rm venv; ln -s $(PREFIX_PREPARE) venv
 
 activate-pyg:
-	[ -f venv ] && rm venv; ln -s $(PREFIX_PYG) venv
+	rm venv; ln -s $(PREFIX_PYG) venv
 
 activate-stemgnn:
-	[ -f venv ] && rm venv; ln -s $(PREFIX_STEMGNN) venv
+	rm venv; ln -s $(PREFIX_STEMGNN) venv
 	
 
 clean-prepare:

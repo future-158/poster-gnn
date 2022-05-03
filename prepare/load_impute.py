@@ -101,3 +101,5 @@ with Parallel(n_jobs=10) as parallel:
 assert df.mean().mean() != output.mean().mean()
 output.to_csv(target)
 
+del output
+Path(mmap_path).unlink()

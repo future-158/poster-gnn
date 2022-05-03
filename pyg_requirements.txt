@@ -13,4 +13,4 @@ hydra_colorlog
 mlflow
 dvc
 pygod
-
+black
