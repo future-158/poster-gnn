@@ -4,8 +4,8 @@ defaults:
   - override hydra/sweeper: optuna
   - override hydra/sweeper/sampler: tpe
   # - override hydra/launcher: ray
-  - override hydra/launcher: joblib
-
+  # - override hydra/launcher: joblib
+  # - override hydra/launcher: ray
 catalogue:
   raw: data/raw/sst.csv
   clean: data/clean/sst.csv
@@ -23,10 +23,9 @@ params:
   dt_start: '2018'
   dt_end: '2021'
   n_neighbors: 3
-  resampler: 12
-  lag_step: 14
-  pred_step: 2  
-  num_epochs: 5
+  resampler: 12 
+  pred_step: 1  
+
 
 default:
   imputation: knn

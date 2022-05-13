@@ -9,6 +9,7 @@ import hydra
 import mlflow
 import numpy as np
 import torch
+from torch._C import CudaBFloat16StorageBase
 import torch.nn.functional as F
 from hydra import utils
 from hydra.utils import get_original_cwd, to_absolute_path
@@ -27,13 +28,17 @@ from loader.poster import PosterSSTDataLoader
 
 class RecurrentGCN(torch.nn.Module):
     def __init__(
-        self, node_features: int, num_nodes: int, hidden_size: int, out_channels: int
+        self, in_channels: int, hidden_size: int, num_nodes: int, dropout: float
     ):
         super(RecurrentGCN, self).__init__()
+        out_channels = 32 # out_channels  parameter not used. github latest version mention this.
+        window = 1 
+        
+    
         self.recurrent = MPNNLSTM(
-            node_features, hidden_size, out_channels, num_nodes, 1, 0.5
+            in_channels, hidden_size, out_channels, num_nodes, 1, dropout
         )
-        self.linear = torch.nn.Linear(2 * hidden_size + node_features, 1)
+        self.linear = torch.nn.Linear(2 * hidden_size + in_channels, 1)
 
     def forward(self, x, edge_index, edge_weight):
         h = self.recurrent(x, edge_index, edge_weight)
@@ -43,34 +48,36 @@ class RecurrentGCN(torch.nn.Module):
 
 @hydra.main(config_path="../../conf", config_name="config.yml")
 def main(cfg: DictConfig) -> float:
-    hidden_size = cfg.model.hidden_size
-    out_channels = cfg.model.out_channels
-    lr = cfg.optimizer.lr
-    lag_step = cfg.params.lag_step
 
+    hidden_size = cfg.model.hidden_size
+    in_channels = cfg.model.in_channels
+    dropout = cfg.model.dropout
+    lr = cfg.optimizer.lr
+    num_epochs = cfg.params.num_epochs
+
+    
     with open_dict(cfg):
         cfg.wd = get_original_cwd()
     
     loader = PosterSSTDataLoader(cfg)
-    dataset = loader.get_dataset(lag_step, cfg.params.pred_step)
+    dataset = loader.get_dataset(in_channels, cfg.params.pred_step)
+    # train_dataset, test_dataset = temporal_signal_split(dataset, train_ratio=0.8)
     train_dataset, test_dataset = temporal_signal_split(dataset, train_ratio=0.8)
 
     # loader = ChickenpoxDatasetLoader()
     # dataset = loader.get_dataset()
-    # node_features = 4
+    # in_channels = 4
     # num_nodes = 20
-
-    num_epochs = cfg.params.num_epochs
-    # node_features = lag_step
-    num_nodes,  node_features = next(iter(dataset.features)).shape
+    num_nodes, check_in_channels = next(iter(dataset.features)).shape
+    assert check_in_channels == in_channels
     val_freq = 1
     invert_transform = True
-
     model = RecurrentGCN(
-        node_features=node_features,
-        num_nodes=num_nodes,
+        in_channels=in_channels,
         hidden_size=hidden_size,
-        out_channels=out_channels,
+        num_nodes=num_nodes,
+        dropout=dropout
+        
     )
 
     device = "cuda"
@@ -108,9 +115,10 @@ def main(cfg: DictConfig) -> float:
     with mlflow.start_run(nested=True):
         mlflow.log_params(
             {
-                'lag_step': lag_step,
+                'in_channels': in_channels,
                 'hidden_size': hidden_size,
-                'out_channels': out_channels,
+                'num_nodes':num_nodes,
+                'dropout':dropout,                
                 'lr': lr
             }
         )        
@@ -164,10 +172,16 @@ def main(cfg: DictConfig) -> float:
             # mlflow.log_artifacts(utils.to_absolute_path("configs"))
             mlflow.log_metric('rmse', val_rmse, step=epoch)
         best_rmse = np.min(val_history)
+
         mlflow.log_metric('best_rmse', best_rmse, step=epoch+1)
         return best_rmse
 
 if __name__ == '__main__':
+    if os.environ.get('RANK'):
+        cvd = str(os.environ['RANK'])
+        os.environ['CUDA_VISIBLE_DEVICES'] = cvd
+        print(cvd, ' using!')
+        
     main()
     
 

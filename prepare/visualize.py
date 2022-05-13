@@ -12,7 +12,7 @@ st.set_page_config(layout="wide")
 
 @st.cache
 def load_data():
-    source = cfg.catalogue.impute
+    source = cfg.catalogue.model_in
     return pd.read_csv(source, parse_dates=["timestamp"], index_col=["timestamp"])
 
 

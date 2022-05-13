@@ -46,11 +46,13 @@ schema = pa.DataFrameSchema(
 )
 
 resampler = cfg.params.resampler
+# resampler = 24
 n_seasons = 24 // resampler
 n_longseasons = 365 * (24 // resampler)
 
 df = schema(df)
 df = df.resample(f"{resampler}H").mean()
+df = df[df.index.hour == 12]
 
 # impute for fillna
 n_neighbors = cfg.params.n_neighbors

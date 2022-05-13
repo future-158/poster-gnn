@@ -7,19 +7,36 @@
 log_dir: data/log/pyg
 
 mlflow: 
-  runname: "pyg_run3"
+  runname: "pyg_run4"
   experiment_name: "pyg_experiment"
   tracking_port: 23002
 
 model: # define default value
   # lag_hour: 14
   hidden_size: 32  # default 32
-  out_channels: 32  # default 32
+  in_channels: 1
+  dropout: 0.1
 
 optimizer:
   lr: 0.01
 
+params:
+  num_epochs: 10
+  
 hydra:
+  # job:
+  #   env_set:
+  #     # CUDA_VISIBLE_DEVICES: "1"
+  #     # RANK: ${hydra:job.num}
+  #     # RANK: 
+  # launcher:
+  #   ray:
+  #     init:
+  #       num_cpus: 40
+  #       num_gpus: 8
+  #     remote:
+  #       num_cpus: 2
+  #       num_gpus: 1        
   run:
     dir: ${log_dir}/outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}
   sweep:
@@ -36,37 +53,23 @@ hydra:
       seed: 123
 
     search_space:
-      # prep.lag_hour:
-      #   type: int
-      #   low: 4
-      #   high: 24
-      #   step: 1
       model.hidden_size:
         type: int
-        low: 16
-        high: 64
-        step: 4
-      model.out_channels:
+        low: 2
+        high: 128
+        step: 1
+      model.in_channels:
         type: int
-        low: 16
-        high: 64
-        step: 4
+        low: 1
+        high: 31 # max 1 month
+        step: 1
+      model.dropout:
+        type: float
+        low: 0
+        high: 0.5
+        step: 0.1
       optimizer.lr:
         type: float
         low: 0.0001
         high: 0.1
         log: true
-
-      params.lag_step:
-        type: int
-        low: 10 # 2 * 5
-        high: 62 # 2 * 31
-        step: 2
-
-  launcher:
-    # override the number of jobs for joblib
-    n_jobs: 1
-
-  # job:
-  #   env_set:
-  #     RANK: ${hydra:job.num}
