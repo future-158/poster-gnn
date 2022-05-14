@@ -1,4 +1,4 @@
-SHELL := /usr/bin/zsh
+SHELL := /usr/bin/bash
 REPO := https://github.com/pygod-team/pygod.git
 
 .PHONY: venv install
