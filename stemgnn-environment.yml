@@ -1,0 +1,40 @@
+name: poster-stemgnn
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - pip
+  - python=3.8
+  - cudatoolkit=11.0
+  - pip:
+    - numpy==1.19.5
+    - scipy==1.5.4
+    - pandas==1.1.5
+    - torch==1.7.1
+    - dvc
+    - pandera
+    - scikit-learn
+    - hydra-core
+    - hydra-optuna-sweeper
+    - pandera
+    - mlflow
+    - cachetools
+    - ipykernel
+    - kedro
+    - dvc
+    - numpy
+    - scipy
+    - simdkalman
+    - tsmoothie
+    - pandas
+    - omegaconf
+    - matplotlib
+    - black
+    - sktime
+    - pandera[strategies]
+    - pandera[io]
+    - scikit-learn
+    - joblib
+    - typing-extensions
+    - streamlit
+    - click
