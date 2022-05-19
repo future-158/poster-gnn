@@ -1,16 +1,20 @@
 defaults:
   - _self_
-  - model: pyg
+  # - model: 
   - override hydra/sweeper: optuna
   - override hydra/sweeper/sampler: tpe
   # - override hydra/launcher: ray
   # - override hydra/launcher: joblib
   # - override hydra/launcher: ray
+
+ostia: false
 catalogue:
   raw: data/raw/sst.csv
   clean: data/clean/sst.csv
+  ostia: data/clean/shore.csv
   impute: data/impute/sst.csv
   model_in: data/model_in/sst.csv
+  merge: data/model_in/merge.csv
   meta: data/meta/A.csv
   scratch: data/scratch/df.mmap
   scaler: data/scaler/scaler.pkl
@@ -18,9 +22,11 @@ catalogue:
     summary: summary.yml
 
 catalog: ${catalogue}
+
 prepare:
   dt_start: ${params.dt_start}
   dt_end: ${params.dt_end}
+
 
 params:
   dt_start: '2018'
@@ -39,11 +45,79 @@ mlflow:
   MLFLOW_S3_ENDPOINT_URL: 
   TRACKING_SERVER: http://localhost:23005
 
-
-
+api_version: 2.0
+runname: stemgnn_v${api_version}
+args:
+  train: True
+  evaluate: True
+  dataset: 'poster'
+  horizon: 1
+  train_length: 7
+  valid_length: 2
+  test_length: 1
+  epoch: 20
+  device: cuda
+  validate_freq: 1
+  norm_method: 'z_score'
+  optimizer: 'RMSProp'
+  early_stop: False
+  exponential_decay_step: 5
+  batch_size: 32  
+  decay_rate: 0.5
+  leakyrelu_rate: 0.2
   
+  dropout_rate: 0.5
+  window_size: 31
+  lr: 0.0001
+  multi_layer: 5  
 
-  
+
+hydra:
+  sweeper:
+    sampler:
+      seed: 123
+
+    direction: minimize
+    study_name: stemgnn_merge
+    storage: sqlite:///example.db
+    n_trials: 50
+    n_jobs: 1
+
+    # search_space:
+    #   dropout_rate:
+    #     type: float
+    #     low: 0
+    #     high: 0.5
+      
+      # args.dropout_rate:
+      #   type: float
+      #   low: 0
+      #   high: 0.5
+      
+      # args.lr:
+      #   type: categorical
+      #   choices:
+      #   - 0.0001
+      #   - 0.005
+      #   - 0.001
+      #   - 0.01
+      
+      # args.leakyrelu_rate:
+      #   type: float
+      #   low: 0.1
+      #   high: 0.5
+
+      # args.multi_layer:
+      #   type: int
+      #   low: 1
+      #   high: 5
+      #   step: 1
+
+      # args.window_size:
+      #   type: int
+      #   low: 5
+      #   high: 31
+      #   step: 1
 
   
 

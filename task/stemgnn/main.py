@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import json
 import torch
 from datetime import datetime
@@ -21,8 +22,11 @@ def main(cfg: DictConfig) -> float:
     # data_file = (
     #     wd / 'dataset' /  args.dataset
     #  ).with_suffix('.csv')
-    data_file = Path(get_original_cwd()) / cfg.catalogue.model_in
 
+    if cfg.ostia:
+        data_file = Path(get_original_cwd()) / cfg.catalogue.merge
+    else:
+        data_file = Path(get_original_cwd()) / cfg.catalogue.model_in
     result_train_file = os.path.join('output', args.dataset, 'train')
     result_test_file = os.path.join('output', args.dataset, 'test')
     if not os.path.exists(result_train_file):
@@ -63,6 +67,7 @@ def main(cfg: DictConfig) -> float:
     print('done')
 
     summary = dict(mae=mae, mape=mape, rmse=rmse)
+    summary['api_version'] = cfg.api_version
     with open(cfg.catalog.output.summary, 'w') as fp:
         json.dump(summary, fp)
 
@@ -81,6 +86,8 @@ def main(cfg: DictConfig) -> float:
         )        
         mlflow.log_metric('rmse', rmse, step=args.epoch)
         mlflow.log_metric('test_rmse', rmse)
+        mlflow.log_artifact( Path.cwd() / '.hydra/config.yaml')
+
         
     # end logging.
 
