@@ -1,10 +1,9 @@
 import os
 import json
 import torch
-# os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
-# os.environ['CUDA_VISIBLE_DEVICES'] = '7'
 from datetime import datetime
 from models.handler import train, test
+import mlflow
 import argparse
 import pandas as pd
 import hydra
@@ -44,31 +43,48 @@ def main(cfg: DictConfig) -> float:
     valid_data = data.loc["2020"].values
     test_data = data.loc["2021"].values
 
-
-
     torch.manual_seed(0)
-    if __name__ == '__main__':
-        if args.train:
-            try:
-                before_train = datetime.now().timestamp()
-                _, normalize_statistic = train(train_data, valid_data, args, result_train_file)
-                after_train = datetime.now().timestamp()
-                print(f'Training took {(after_train - before_train) / 60} minutes')
-            except KeyboardInterrupt:
-                print('-' * 99)
-                print('Exiting from training early')
-        if args.evaluate:
-            before_evaluation = datetime.now().timestamp()
-            mae, mape, rmse = test(test_data, args, result_train_file, result_test_file)
-            after_evaluation = datetime.now().timestamp()
-            print(f'Evaluation took {(after_evaluation - before_evaluation) / 60} minutes')
-        print('done')
 
-        summary = dict(mae=mae, mape=mape, rmse=rmse)
-        with open(cfg.catalog.output.summary, 'w') as fp:
-            json.dump(summary, fp)
+    if args.train:
+        try:
+            before_train = datetime.now().timestamp()
+            _, normalize_statistic = train(train_data, valid_data, args, result_train_file)
+            after_train = datetime.now().timestamp()
+            print(f'Training took {(after_train - before_train) / 60} minutes')
+        except KeyboardInterrupt:
+            print('-' * 99)
+            print('Exiting from training early')
 
-        return rmse
+
+    before_evaluation = datetime.now().timestamp()
+    mae, mape, rmse = test(test_data, args, result_train_file, result_test_file)
+    after_evaluation = datetime.now().timestamp()
+    print(f'Evaluation took {(after_evaluation - before_evaluation) / 60} minutes')
+    print('done')
+
+    summary = dict(mae=mae, mape=mape, rmse=rmse)
+    with open(cfg.catalog.output.summary, 'w') as fp:
+        json.dump(summary, fp)
+
+    # start logging. 
+    mlflow.set_tracking_uri(cfg.mlflow.TRACKING_SERVER)
+    mlflow.set_experiment(cfg.runname)    
+    with mlflow.start_run(nested=True):
+        mlflow.log_params(
+            {
+                "dropout_rate": args.dropout_rate,
+                "lr": args.lr,
+                "multi_layer": args.multi_layer,
+                "window_size": args.window_size,
+                "leakyrelu_rate": args.leakyrelu_rate,
+            }
+        )        
+        mlflow.log_metric('rmse', rmse, step=args.epoch)
+        mlflow.log_metric('test_rmse', rmse)
+        
+    # end logging.
+
+    return rmse
 
 if __name__ == "__main__":
     main()    

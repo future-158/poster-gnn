@@ -205,3 +205,4 @@ def test(test_data, args, result_train_file, result_test_file):
                       result_file=result_test_file)
     mae, mape, rmse = performance_metrics['mae'], performance_metrics['mape'], performance_metrics['rmse']
     print('Performance on test set: MAPE: {:5.2f} | MAE: {:5.2f} | RMSE: {:5.4f}'.format(mape, mae, rmse))
+    return mae, mape, rmse

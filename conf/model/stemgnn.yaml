@@ -1,5 +1,7 @@
 # @package _global_
 
+api_version: 1.1
+runname: stemgnn_v${api_version}
 args:
   train: True
   evaluate: True
@@ -32,8 +34,7 @@ hydra:
     n_jobs: 1
     sampler:
       seed: 123
-    
-
+  
     search_space:
       args.dropout_rate:
         type: float
@@ -46,16 +47,21 @@ hydra:
         - 0.005
         - 0.001
         - 0.01
+      
+      args.leakyrelu_rate:
+        type: float
+        low: 0.1
+        high: 0.5
+
       args.multi_layer:
         type: int
         low: 1
         high: 5
         step: 1
 
-
       args.window_size:
         type: int
         low: 5
-        high: 90
+        high: 31
         step: 1
 
