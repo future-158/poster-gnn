@@ -1,3 +1,7 @@
+# update
+2022-05-17: stemgnn test rmse as low as 0.6~0.7
+
+
 # 개요
 한반도 정점 수온 자료를 가지고 GNN 모델로 12, 24시간 후 수온 예측 
 
@@ -47,7 +51,7 @@ conf/model/pyg.yml에서 search_space를 수정하면 됨
 # TODO
 - microsoft/stemgnn 모델과 비교
 - workflow 추가 **현재는 파일만 만들어놓음**
-
+- set optuna-storege-name with dependency hash. reuse automatically when dependency(code, config file, input data) not changed
 
 
 

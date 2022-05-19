@@ -5,3 +5,6 @@ torch==1.7.1
 dvc==2.10.1
 pandera==0.10.1
 scikit-learn==1.0.2
+hydra-core
+hydra-optuna-sweeper
+pandera

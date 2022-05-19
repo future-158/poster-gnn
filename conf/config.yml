@@ -14,7 +14,10 @@ catalogue:
   meta: data/meta/A.csv
   scratch: data/scratch/df.mmap
   scaler: data/scaler/scaler.pkl
+  output:
+    summary: summary.yml
 
+catalog: ${catalogue}
 prepare:
   dt_start: ${params.dt_start}
   dt_end: ${params.dt_end}
