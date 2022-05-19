@@ -45,7 +45,7 @@ mlflow:
   MLFLOW_S3_ENDPOINT_URL: 
   TRACKING_SERVER: http://localhost:23005
 
-api_version: 2.0
+api_version: 2.1
 runname: stemgnn_v${api_version}
 args:
   train: True

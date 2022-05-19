@@ -19,7 +19,10 @@ cfg = OmegaConf.load("conf/config.yml")
 df = pd.read_csv(cfg.catalog.model_in, parse_dates=[0], index_col=[0])
 ostia = pd.read_csv(cfg.catalog.ostia, parse_dates=[0], index_col=[0])
 ostia -= offset
-df = df.join(ostia)
+
+rs = np.random.RandomState(889)
+selected = rs.choice(ostia.columns, df.shape[1])
+df = df.join(ostia[selected])
 df.to_csv(cfg.catalog.merge, index=True)
 
 

@@ -3,46 +3,27 @@ REPO := https://github.com/pygod-team/pygod.git
 
 .PHONY: venv install
 
-PREFIX_PREPARE := envs/prepare
-PREFIX_STEMGNN := envs/stemgnn
-PREFIX_PYG := envs/pyg
+install: install-stemgnn
 
-install-prepare:
-	conda create --prefix $(PREFIX_PREPARE) python=3.8 pip ipykernel pandera -yq && \
-	conda run --prefix $(PREFIX_PREPARE) python -m pip install -r requirements.txt
-
-install-pygod:
-	conda run --prefix $(PREFIX_PREPARE) python -m pip install -r pygod_requirements.txt && \
-	# [ -d repo ] && rm -rf repo; \
-	# git clone $(REPO) repo && \
-	# conda create --prefix venv python=3.8 pip ipykernel -yq && \
-	# conda run --prefix venv python -m pip install -r requirements.txt && \
-	# conda run --prefix venv bash -c "cd repo; python setup.py install" && \
-	# rm -rf repo
-
-install-pyg:
-	conda env create --prefix $(PREFIX_PYG) --file pyg_environment.yml
+install-prepare: 
+	conda env create --file prepare-requirements.yml
 
 install-stemgnn:
-	conda create --prefix $(PREFIX_STEMGNN) python=3.8 pip ipykernel -yq && \
-	conda run --prefix $(PREFIX_STEMGNN) python -m pip install -r stemgnn_requirements.txt
+	conda env remove -n poster-stemgnn -y
+	conda env create --file stemgnn-requirements.yml
+
+# install-pygod:
+# 	conda env create --file pygod-requirements.yml
+
+# install-pyg:
+# 	conda env create --name $(PREFIX_PYG) --file pyg_environment.yml
 
 activate-prepare:
 	rm venv; ln -s $(PREFIX_PREPARE) venv
 
-activate-pyg:
-	rm venv; ln -s $(PREFIX_PYG) venv
-
 activate-stemgnn:
 	rm venv; ln -s $(PREFIX_STEMGNN) venv
-	
 
-clean-prepare:
-	conda remove --prefix envs/pepare --all -y
+hpo:
+	CUDA_VISIBLE_DEVICES=0 python task/stemgnn/main.py --multirun ostia=true 'args.dropout_rate=interval(0.1,0.5)' 'args.lr=interval(0.00001,0.01)' 'args.multi_layer=int(interval(1,5))' 'args.window_size=int(interval(1,31))'
 
-
-install: install-prepare install-pygod install-stemgnn
-
-
-# stemgnn:
-# 	docker run -it --rm --gpus=device=1 -p "21000:8888" --shm-size=50gb --cpus='20' -v $(wd)/dataset:/dataset -v $(wd)/data:/data -v $(wd)/task-2-predict/stemgnn:/workspace -w /workspace poster/stemgnn
