@@ -14,6 +14,12 @@ mlruns
 _*
 
 
+example.db
+multirun/
+nohup.out
+outputs/
+
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
