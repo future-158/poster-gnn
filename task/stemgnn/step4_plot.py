@@ -30,6 +30,8 @@ import geopandas as gpd
 from libpysal.weights.contiguity import Queen
 from libpysal import examples
 import splot
+from esda.moran import Moran
+from splot.esda import moran_scatterplot
 
 cfg = OmegaConf.load('conf/config.yml')
 
@@ -58,11 +60,14 @@ new_columns = data.columns.astype(str).str.split('_').str.get(0).map(renamer) + 
 pred.columns  = new_columns
 target.columns  = new_columns
 
-
 gdf = (
     pd.read_csv(cfg.catalog.geo_file)
     .assign(ssid = lambda df: df.stype + '_' + df.sid)
 )
+
+gdf = gpd.GeoDataFrame(
+    gdf, geometry=gpd.points_from_xy(gdf.Longitude, gdf.Latitude))
+
 
 # kmeans = KMeans(n_clusters=3, random_state=0).fit(
 #     gdf[['Latitude', 'Longitude']]
@@ -125,7 +130,6 @@ fig.write_image(
 
 selected_ssids = ssid_rmse.groupby('sea_area')['ssid'].sample(1,random_state=0).tolist()
 for ssid in selected_ssids:
-
     merge = pd.concat(
         [
             pred[ssid].to_frame(name='pred'),
@@ -135,6 +139,9 @@ for ssid in selected_ssids:
     merge.index +=  1 # day starts with 1
     merge.index += best_cfg.args.window_size # first days  skipped
     merge.index.name = 'dayofyear'
+    dayofyears = merge.index.copy()
+
+
     melt = pd.melt(
         merge.reset_index(),
         id_vars = ['dayofyear'],
@@ -221,25 +228,106 @@ for ssid in selected_ssids:
 
 # make morans plot
 
-gdf = gpd.GeoDataFrame(
-    gdf, geometry=gpd.points_from_xy(gdf.Longitude, gdf.Latitude))
 
-
-link_to_data = examples.get_path('Guerry.shp')
-gdf = gpd.read_file(link_to_data)
-
-
-
-y = gdf['Donatns'].values
-w = Queen.from_dataframe(gdf)
+# global morans plot
+y = ssid_rmse['rmse'].values
+w = Queen.from_dataframe(ssid_rmse)
 w.transform = 'r'
 
-
-w = Queen.from_dataframe(gdf)
 moran = Moran(y, w)
-moran.I
-
-
 fig, ax = moran_scatterplot(moran, aspect_equal=True)
 plt.show()
 
+
+dic = {}
+# morans plot by dayofyear
+for i in pred.index:
+    dayofyear = i + 1 + best_cfg.args.window_size
+    snapshot_rmse = np.sqrt(
+        np.power(target.loc[i] - pred.loc[i], 2)
+    ).to_frame(name='rmse')
+
+    snapshot_rmse = ssid_rmse.drop(columns=['rmse']).merge(
+        snapshot_rmse, left_on='ssid', right_index=True
+    )
+
+    y = snapshot_rmse['rmse'].values
+    moran = Moran(y, w)
+    dic[dayofyear] = moran.I
+
+    fig, ax = moran_scatterplot(moran, aspect_equal=True)
+    # plt.show()
+    dest = report_dir / 'morans'   / f'{dayofyear}.png'
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(dest)
+
+daily_moran = pd.Series(dic).to_frame('moran')
+
+daily_rmse = np.sqrt(np.power(target - pred, 2)).mean(axis=1)
+daily_rmse.index +=  1 + best_cfg.args.window_size
+daily_rmse = (
+    daily_rmse.to_frame(name='rmse')
+    .reset_index()
+    .rename(columns=dict(index='dayofyear'))
+)
+
+
+daily_rmse.to_csv(
+    report_dir / 'daily_rmse.csv',
+    index=False
+)
+
+fig = px.scatter(
+    daily_rmse,
+    x="dayofyear",
+    y="rmse",
+    # color='variable',
+    width=1280, height=720
+    )
+
+fig.update_layout(
+    title=f'rmse by day',
+    xaxis_title="dayofyear",
+    yaxis_title="RMSE",
+    # legend_title="구분",
+    font=dict(
+        # family="Courier New, monospace",
+        size=18,
+        # color="RebeccaPurple"
+    )
+)
+fig.show()
+fig.write_image(
+    # report_dir / f'box_plot.svg'    
+    report_dir / f'rmse_by_day.png'    
+    )
+    
+
+cat = daily_rmse.merge(daily_moran, left_on='dayofyear', right_index=True)
+
+
+
+fig = px.scatter(
+    cat,
+    x="rmse",
+    y="moran",
+    width=1280, height=720
+    )
+
+fig.update_layout(
+    title=f'compare rmse with moran.I',
+    xaxis_title="rmse",
+    yaxis_title="moran",
+    # legend_title="구분",
+    font=dict(
+        # family="Courier New, monospace",
+        size=18,
+        # color="RebeccaPurple"
+    )
+)
+fig.show()
+fig.write_image(
+    # report_dir / f'box_plot.svg'    
+    report_dir / f'compare rmse with moran.png'    
+    )
+print('r2 score between moran.I vs rmse is :', r2_score(cat.rmse, cat.moran)    )

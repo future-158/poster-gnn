@@ -12,6 +12,7 @@ dependencies:
   - scikit-learn  
   - scipy  
   - joblib  
+  - numpy=1.21
   - pip:
     - hydra-core
     - omegaconf
