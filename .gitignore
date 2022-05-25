@@ -9,6 +9,12 @@ data/log
 data/model_in
 data/scaler
 data/scratch
+data/buoy
+data/concat
+data/fargo
+data/koofs
+data/report
+
 mlruns
 .vscode
 _*

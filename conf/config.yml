@@ -16,14 +16,20 @@ catalogue:
   model_in: data/model_in/sst.csv
   merge: data/model_in/merge.csv
   meta: data/meta/A.csv
-  geo_file: data/meta/gdf.csv
+  geo_file: data/meta/gdf2.csv # add sea_area to gdf.csv
   scratch: data/scratch/df.mmap
   scaler: data/scaler/scaler.pkl
   output:
     summary: summary.yml
   
   checkpoint: data/best
-  
+  buoy_dir: data/buoy
+  fargo_dir: data/fargo
+  koofs_dir: data/koofs
+  koofs_path: data/concat/koofs.csv
+  geo_dir: data/meta
+  geo_path: data/meta/gdf.csv
+  A_path: data/meta/A.csv
 
 catalog: ${catalogue}
 

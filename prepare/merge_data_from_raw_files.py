@@ -13,25 +13,25 @@ from omegaconf import OmegaConf
 import dask.dataframe as dd
 from dask import delayed
 
-cfg = OmegaConf.load('config.yml')
+
+"""
+아래 돌릴려면 raw datafile을 다운받아야함.
+steps:
+
+- aws configure
+    AWS Access Key ID [None]: seafog
+    AWS Secret Access Key [None]: defaultpassword
+    Default region name [None]: ENTER
+    Default output format [None]: ENTER
+
+- aws configure set default.s3.signature_version s3v4
+- aws --endpoint-url http://oldgpu:9000 s3 cp s3://poster/data  data --recursive
+"""
+
+cfg = OmegaConf.load('conf/config.yml')
 buoy_dir = Path(cfg.catalogue.buoy_dir)
 fargo_dir = Path(cfg.catalogue.fargo_dir)
 koofs_path = Path(cfg.catalogue.koofs_path)
-
-
-fig_dir = Path(
-    'data/fig'
-)
-
-# sst = pd.read_parquet(cfg.catalogue.dataset_path)
-# ops = ['min', 'mean', 'max']
-# for op in ops:
-#     sst.describe().loc[op].plot.hist().figure.savefig(fig_dir / f'{op}.png')
-
-# visual testing
-# sst.loc[:,sst.max().gt(50)].plot(subplots=True, logy=True).savefig(fig_dir / 'trash.png')
-
-
 
 files = [x for x in buoy_dir.glob('**/*.zip') if x.name.startswith('MARINE_BUOY')]
 
@@ -106,7 +106,7 @@ invalid_sid_mask = pivot.isna().mean().gt(0.3)
 pivot = pivot.loc[:, ~invalid_sid_mask]
 msno.matrix(pivot, freq='MS')
 # pivot.isna().mean().plot.hist(bins=100)
-pivot.to_csv(cfg.catalogue.dataset_path)
+pivot.to_csv(cfg.catalogue.clean)
 
 # how to imputation 
 # feature propagation

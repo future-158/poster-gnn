@@ -16,4 +16,5 @@ dependencies:
     - hydra-core
     - omegaconf
     - awscli
+    - kaleido
 
