@@ -16,10 +16,14 @@ catalogue:
   model_in: data/model_in/sst.csv
   merge: data/model_in/merge.csv
   meta: data/meta/A.csv
+  geo_file: data/meta/gdf.csv
   scratch: data/scratch/df.mmap
   scaler: data/scaler/scaler.pkl
   output:
     summary: summary.yml
+  
+  checkpoint: data/best
+  
 
 catalog: ${catalogue}
 

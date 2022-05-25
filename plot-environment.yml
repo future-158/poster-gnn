@@ -1,0 +1,19 @@
+name: poster-plot
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - pip
+  - python
+  - ipykernel
+  - geopandas
+  - plotly
+  - pysal
+  - scikit-learn  
+  - scipy  
+  - joblib  
+  - pip:
+    - hydra-core
+    - omegaconf
+    - awscli
+

@@ -30,3 +30,5 @@ dependencies:
     - typing-extensions
     - streamlit
     - click
+    - plotly==5.8.0
+    - awscli
